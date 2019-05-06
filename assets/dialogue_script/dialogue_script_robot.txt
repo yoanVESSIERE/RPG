@@ -1,0 +1,42 @@
+***********************
+/**DEBUT TRANSMISSION**\
+************************
+BoBzzz..jour, je suis bZZ
+Voici les information
+pour BzzZz bien jouer
+Vous pouvez vous deplacer
+dans la map malgres les 
+differents ennemis
+Certaines salles
+contiennent des BOSS
+alors soyez pret
+Vous avez acces a votre
+inventaire, votre status
+et des info sur les items
+Vous avez aussi acces a
+votre propre menu de
+sort drag and drop
+Lorsque vous parler
+a quelqu'un, vous
+pouvez instantanement
+sortir du dialogue en
+appuyant sur SPACE
+
+Attention, les ennemis
+des salles deja
+vaincus reapparaissent
+au bout d'un certain
+temps, alors ne
+soyez pas surpris
+Fouillez un maximum
+pour ne rater aucune
+salle
+Votre touche d'action
+([F] de base) vous 
+seras toujours utile
+N'hesitez pas a faire un
+tour dans les option pour
+voir les possibilitees !
+***********************
+/***FIN TRANSMISSION***\
+************************
