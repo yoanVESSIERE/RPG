@@ -204,10 +204,12 @@ Class "EntityPnj" extends "EntityLiving" [{
             end
             if this.name == "homme" and this.val == 2 or this.val == 3 then
                 player:setIsInQuest(true)
-                if nb_parchemin ~= 6 then
+                if (nb_parchemin ~= 6 and not _G.aquired) then
                     dialogue_hud:itIsHom(this.val)
                     dialogue_png_quete(event, x, y, nx, ny)
                 else
+                    _G.aquired = true
+                    player_hud:showInteractTouch(false)
                     dialogue_hud:itIsHom(3)
                     dialogue_png_end(event, x, y, nx, ny)
                 end

@@ -20,20 +20,13 @@ door:scale(0.38, 0.38)
 local first = false
 
 
-local entities = {}
 local hitb = nil
 
 function load(scene)
-    if first == false then
-        mage = new(EntityMageBoss(800, 500))
-        first = true
-    end
+    mage = new(EntityMageBoss(800, 500))
     player.setPosition(1050, 240)
-    world.setEntities(entities)
-    if #entities == 0 then
-        world.spawnEntity(player)
-        world.spawnEntity(mage)
-    end
+    world.spawnEntity(player)
+    world.spawnEntity(mage)
     bosshealth:setEntity(mage)
     if (hitb == nil) then
         HitBoxWall(0, 0, {{0, 0}, {0, 220}, {965, 220}, {960, 190}, {1115, 190}, {1115, 220}, {1920, 220}, {1920, 0}})
@@ -53,7 +46,6 @@ function HitBoxWall(x_or, y_or, pts)
 end
 
 function unload()
-    entities = world.getEntities()
     hitb = hitbox.getHitboxes()
     world.clearEntities()
     hitbox.clear()
@@ -74,10 +66,8 @@ end
 function update()
     local x, y = player.getPosition()
     canPass = true
-    for i=1, #entities do
-        if entities[i].getType() == "ennemy" then
-            canPass = false
-        end
+    if mage.isAlive() then
+        canPass = false
     end
     if canPass then
         if not play_door then

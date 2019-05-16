@@ -38,7 +38,7 @@ Class "EntityRayon" extends "Entity" [{
     end
 
     function update()
-        this.angle = this.angle +1
+        this.angle = this.angle + 0.5
         if this.angle > 360 then
             this.angle = 0
         end

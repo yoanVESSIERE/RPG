@@ -1,6 +1,6 @@
 function quete()
     local inventory = player:getInventory()
-    local slots = inventory:getSlot_tab()
+    local slots = inventory:getSlots()
     local itemstack = {}
     local item = {}
     local nb_parchemin = 0

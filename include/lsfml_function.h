@@ -23,6 +23,7 @@ int win_draw_sprite(lua_State *L);
 int win_draw_text(lua_State *L);
 int win_set_framerate_limit(lua_State *L);
 int win_set_mouse_cursor_grabbed(lua_State *L);
+int win_display(lua_State *L);
 
 int sprite_set_texture(lua_State *L);
 int sprite_get_position(lua_State *L);

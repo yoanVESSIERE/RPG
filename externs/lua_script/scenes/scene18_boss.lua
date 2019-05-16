@@ -8,11 +8,13 @@ background:setTexture(assets["boss"], false)
 local first = false
 local entities = {}
 local hitb = nil
+local scythe
 
 function load(scene)
     if player:getNb_salle_pass() > 6 then
         entities = {}
         first = false
+        player:add_nbr_restart()
         player:restartNb_salle_pass()
         for i = 1, 17 do
             player:setNeedRestart(i, true)
@@ -22,7 +24,6 @@ function load(scene)
         scythe = new(EntityScytheBoss(800, 800))
         first = true
     end
-    bosshealth:setEntity(scythe)
     if (scene == "scene17_right_start") then
         player.setPosition(950, 1050)
     end
@@ -47,9 +48,18 @@ function load(scene)
         hitb = hitbox.getHitboxes()
     end
     hitbox.setHitboxes(hitb)
+    local ents = world.getEntities()
+    for i=1, #ents do
+        if type(ents[i]) == "EntityScytheBoss" then
+            bosshealth:setEntity(ents[i])
+            break
+        end
+    end
 end
 
 function unload()
+    scythe.setPhase(1)
+    scythe.setHealth(scythe.getMaximumHealth())
     entities = world.getEntities()
     hitb = hitbox.getHitboxes()
     world.clearEntities()

@@ -39,16 +39,23 @@ local parchemin2
 local entities = {}
 local hitb = nil
 local robot1
+local robot2
+
+local sounds = {}
 
 function load(scene)
     if player:getNb_salle_pass() > 6 then
         entities = {}
         first = false
+        player:add_nbr_restart()
         player:restartNb_salle_pass()
         for i = 1, 17 do
             player:setNeedRestart(i, true)
         end
     end
+    soundmanager.setSounds(sounds)
+    soundmanager.setLoop(true)
+    soundmanager.play("robot1")
     if first_load == false or player:getNeedRestart(14) then
         status1 = new(EntityProps(368, 209, assets["status"], 50, 150, {{0, 127}, {13, 147}, {23, 174}, {100, 174}, {62, 130}}, 1))
         status2 = new(EntityProps(87, 815, assets["status"], 50, 150, {{0, 127}, {13, 147}, {23, 174}, {100, 174}, {62, 130}}, 1))
@@ -73,11 +80,18 @@ function load(scene)
         pot5_2 = new(EntityProps(671, 182, assets["pot5"], 17, 84, {{0, 74}, {0, 84}, {34, 84}, {31, 74}}, 1))
         pot5_3 = new(EntityProps(188, 334, assets["pot5"], 17, 84, {{0, 74}, {0, 84}, {34, 84}, {31, 74}}, 1))
         pot5_4 = new(EntityProps(335, 731, assets["pot5"], 17, 84, {{0, 74}, {0, 84}, {34, 84}, {31, 74}}, 1))
-        if one then
+        if canP1 then
             parchemin1 = new(EntityProps(1800, 840, assets["parchemin_1"], 107, 0, {}, 1))
+        end
+        if canP2 then
             parchemin2 = new(EntityProps(600, 100, assets["parchemin_2"], 98, 62, {}, 1))
         end
         robot1 = new(EntityRobot1(200, 600))
+        robot2 = new(EntityRobot3(800, 600))
+        robot3 = new(EntityRobot3(1300, 600))
+        robot1.setLevel(6)
+        robot2.setLevel(3)
+        robot3.setLevel(3)
         first_load = true
     end
     if player:getNeedRestart(14) then
@@ -119,12 +133,14 @@ function load(scene)
         world.spawnEntity(pot5_2)
         world.spawnEntity(pot5_3)
         world.spawnEntity(pot5_4)
-        if one then
+        if canP1 then
             world.spawnEntity(parchemin1)
+        end
+        if canP2 then
             world.spawnEntity(parchemin2)
-            one = false
         end
         world.spawnEntity(robot1)
+        world.spawnEntity(robot2)
     end
     if (hitb == nil) then
         HitBoxWall(0, 0, {{0, 0}, {0, 160}, {940, 160}, {940, 135}, {1030, 135}, {1030, 160}, {1920, 160}, {1920, 0}})
@@ -138,6 +154,10 @@ function load(scene)
 end
 
 function unload()
+    soundmanager.setLoop(false)
+    soundmanager.stop("robot1")
+    sounds = soundmanager.getSounds()
+    soundmanager.clear()
     entities = world.getEntities()
     hitb = hitbox.getHitboxes()
     world.clearEntities()
@@ -163,15 +183,15 @@ function update()
         end
     end
     local x, y = player.getPosition()
-    if x > 500 and x < 700 and y < 300 and keyboard.keyPressed(controls.getControl("action")) and canP1 == true and canPass then
+    if x > 500 and x < 700 and y < 300 and keyboard.keyPressed(controls.getControl("action")) and canP2 == true and canPass then
         world.removeEntityByUUID(parchemin2.getUUID())
         player.getInventory():insertItemStack(par2)
-        canP1 = false
+        canP2 = false
     end
-    if x > 1700 and x < 1900 and y < 900 and y > 700 and keyboard.keyPressed(controls.getControl("action")) and canP2 == true and canPass then
+    if x > 1700 and x < 1900 and y < 900 and y > 700 and keyboard.keyPressed(controls.getControl("action")) and canP1 == true and canPass then
         world.removeEntityByUUID(parchemin1.getUUID())
         player.getInventory():insertItemStack(par1)
-        canP2 = false
+        canP1 = false
     end
     if canPass then
         if x < 0 then

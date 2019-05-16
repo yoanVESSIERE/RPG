@@ -76,8 +76,28 @@ function world.getEntityByUUID(uuid)
     end
 end
 
+local whitelist_items = {
+    parchemin_1 = true,
+    parchemin_2 = true,
+    parchemin_3 = true,
+    parchemin_4 = true,
+    parchemin_5 = true,
+    parchemin_6 = true,
+}
+
 function world.getEntities()
-    return entities
+    local back = {}
+    for i=1, #entities do
+        if type(entities[i]) ~= "EntityItem" then
+            back[#back + 1] = entities[i]
+        else
+            local stack = entities[i]:getItemStack()
+            if stack and stack:getItem() and whitelist_items[stack:getItem():getName()] then
+                back[#back + 1] = entities[i]
+            end
+        end
+    end
+    return back
 end
 
 function world.clearEntities()

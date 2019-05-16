@@ -63,18 +63,28 @@ function setScene(name)
         player_hud:open()
     end
     if scenes[scene_name] and scenes[scene_name].unload then
-        scenes[scene_name].unload()
+        if name ~= "options_menu" or scene_name == "main_menu" then
+            scenes[scene_name].unload()
+        end
         prevScene = scene_name
         prevDeadScene = scene_name
     end
     if scenes[name] and scenes[name].load then
-        scenes[name].load(scene_name)
+        if scene_name ~= "options_menu" or name == "main_menu" then
+            local pre = scene_name
+            scene_name = name
+            scenes[name].load(pre)
+        end
     end
     scene_name = name
 end
 
 function getScene()
     return scene_name
+end
+
+function updateProgress()
+    coroutine.yield()
 end
 
 math.randomseed(os.time())
@@ -85,6 +95,7 @@ dofile("entity/ennemy/boss/mage_func.lua")
 dofile("entity/ennemy/boss/scythe_func.lua")
 dofile("entity/ennemy/boss/soucoupe_func.lua")
 transform = dofile("tools/transform.lua")
+dofile("tools/soundmanager.lua")
 dofile("lib/class.lua")
 dofile("lib/lsfml.lua")
 dofile("tools/stopwatch.lua")
@@ -157,11 +168,98 @@ spells_tab = {
     tempSpell = spell.createFromFile("spells/temp.lua"),
 }
 
+-- =======================
+-- =        FONTS        =
+-- =======================
+
+
+assets["fsys"] = lsfml.font.createFromFile("./assets/fonts/fsys.ttf")
+
 -- =========================================
 -- =             LOADING ASSETS            =
 -- =========================================
 
-dofile("assets.lua")
+window = setmetatable({}, {
+    __index = lsfml.window,
+    __gc = lsfml.window.destroy,
+    __ptr = owindow,
+    __type = "window",
+})
+
+assets["loading_bar"] = lsfml.texture.createFromFile("./assets/menu/loading_bar.png", {0, 0, 2427, 170})
+assets["black"] = lsfml.texture.createFromFile("./assets/menu/black.png", {0, 0, 1920, 1080})
+assets["loading"] = lsfml.texture.createFromFile("./assets/menu/loading_screen.png", {0, 0, 7840, 196})
+local text = lsfml.text.create()
+text:setFont(assets["fsys"])
+text:setCharacterSize(200)
+text:setString("Enter The Lab")
+text:setPosition(350, 50)
+
+local percent = lsfml.text.create()
+percent:setFont(assets["fsys"])
+percent:setCharacterSize(120)
+percent:setPosition(960, 1080)
+
+local background = lsfml.sprite.create()
+local loading_bar = lsfml.sprite.create()
+local loading_anim = animation.create(assets["loading"], {0, 0 , 195.65, 196})
+loading_anim:setPosition(800, 450)
+loading_anim:scale(1.5, 1.5)
+background:setTexture(assets["black"], false)
+loading_bar:setTexture(assets["loading_bar"], false)
+loading_bar:setPosition(0, 920)
+loading_bar:scale(0.79, 0.5)
+
+local stopwatch = stopwatch.create()
+local watch = stopwatch.create()
+local prec = 0
+function loading(count, total)
+    if (count - prec) / total > 0.02 then
+        window:draw(background)
+        loading_bar:setTextureRect(0, 0, count / total * 2427, 170)
+        window:draw(loading_bar)
+        local perc = (math.floor((count / total * 100)*100)/100).."%"
+        local nx, ny = lsfml.text.getCenter(perc, 120)
+        percent:setPosition(960 - nx, 800 - ny)
+        percent:setString(perc)
+        window:draw(text)
+        window:draw(percent)
+        loading_anim:next()
+        if loading_anim:hasEnded() then
+            loading_anim:restart()
+        end
+        loading_anim:draw()
+        window:display()
+        prec = count
+    end
+end
+
+function loadingAssets()
+    local handle = io.open("./externs/lua_script/assets.lua", "r")
+    if handle then
+        local code = handle:read("*all")
+        handle:close()
+
+        local total = 0
+        for k, v in code:gmatch("updateProgress") do
+            total = total + 1
+        end
+        local func, err = load(code, "Loading Assets", "t", _G)
+        if func then
+            local assets_load = coroutine.create( func )
+            local count = 0
+            while coroutine.status(assets_load) ~= "dead" do
+                count = count + 1
+                loading(count, total)
+                coroutine.resume( assets_load )
+            end
+        else
+            error(err)
+        end
+    end
+end
+
+loadingAssets()
 
 -- =========================================
 -- =        LOADING SPELL ANIMATION        =
@@ -170,7 +268,7 @@ dofile("assets.lua")
 animationSpell = {
     rayonSpell = new(EntitySpell({
         hitbox = {{0, 0}, {19, 0}, {19, 114}, {0, 114}},
-        damage = 0.1,
+        damage = 0.3,
         spell = assets["rayonAnimation"],
         rect = {0, 0, 19, 114},
         ox = 0,
@@ -182,7 +280,7 @@ animationSpell = {
     })),
     rayonIdleAnimation = new(EntitySpell({
         hitbox = {{0, 0}, {19, 0}, {19, 114}, {0, 114}},
-        damage = 0.1,
+        damage = 0.3,
         spell = assets["rayonIdleAnimation"],
         rect = {0, 114, 19, 114},
         ox = 0,
@@ -194,7 +292,7 @@ animationSpell = {
     })),
     rayonEndAnimation = new(EntitySpell({
         hitbox = {{0, 0}, {19, 0}, {19, 114}, {0, 114}},
-        damage = 0.5,
+        damage = 0.3,
         spell = assets["rayonEndAnimation"],
         rect = {0, 228, 19, 114},
         ox = 0,
@@ -309,6 +407,8 @@ quete_hud = hud.createFromFile("hud/hud_quete.lua", nil, true)
 -- =========================================
 
 loadScene("menu/respawn.lua")
+loadScene("menu/loading.lua")
+loadScene("menu/howtoplay_menu.lua")
 loadScene("menu/main_menu.lua")
 loadScene("menu/options_menu.lua")
 loadScene("scenes/test_player.lua")
@@ -347,12 +447,7 @@ player = new(EntityPlayer({
 
 -- Called at the beginning of the program
 function init()
-    window = setmetatable({}, {
-        __index = lsfml.window,
-        __gc = lsfml.window.destroy,
-        __ptr = owindow,
-        __type = "window",
-    })
+
     setScene("main_menu")
 end
 
@@ -484,10 +579,58 @@ function game_pause()
     if assets["time"]:isPlaying() then
         assets["time"]:pause()
     end
+    if assets["alarm"]:isPlaying() then
+        assets["alarm"]:pause()
+    end
+    if assets["slash_sound"]:isPlaying() then
+        assets["slash_sound"]:pause()
+    end
+    -- if assets["robot1_sound"]:isPlaying() then
+    --     assets["robot2_sound"]:pause()
+    -- end
+    -- if assets["robot2_sound"]:isPlaying() then
+    --     assets["robot2_sound"]:pause()
+    -- end
+    if assets["scythe_ulti"]:isPlaying() then
+        assets["scythe_ulti"]:pause()
+    end
+    if assets["mage_teleport"]:isPlaying() then
+        assets["mage_teleport"]:pause()
+    end
+    if assets["door_sound"]:isPlaying() then
+        assets["door_sound"]:pause()
+    end
+    if assets["laser_sound"]:isPlaying() then
+        assets["laser_sound"]:pause()
+    end
 end
 
 function game_resume()
     if assets["time"]:isPaused() then
         assets["time"]:play()
+    end
+    if assets["alarm"]:isPaused() then
+        assets["alarm"]:play()
+    end
+    if assets["slash_sound"]:isPaused() then
+        assets["slash_sound"]:play()
+    end
+    -- if assets["robot1_sound"]:isPaused() then
+    --     assets["robot2_sound"]:play()
+    -- end
+    -- if assets["robot2_sound"]:isPaused() then
+    --     assets["robot2_sound"]:play()
+    -- end
+    if assets["scythe_ulti"]:isPaused() then
+        assets["scythe_ulti"]:play()
+    end
+    if assets["mage_teleport"]:isPaused() then
+        assets["mage_teleport"]:play()
+    end
+    if assets["door_sound"]:isPaused() then
+        assets["door_sound"]:play()
+    end
+    if assets["laser_sound"]:isPaused() then
+        assets["laser_sound"]:play()
     end
 end

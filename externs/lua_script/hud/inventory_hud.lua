@@ -136,7 +136,20 @@ function getSlotAt(self, x, y)
     end
 end
 
-function getSlot_tab(self)
+function hasItemInInventory(self, name)
+    check(self, "hud", 1)
+    check(name, "string", 2)
+
+    for i=1, #slots do
+        local itemstack = slots[i]:getItemStack()
+        if itemstack and itemstack:getItem() and itemstack:getItem():getName() == name then
+            return true
+        end
+    end
+    return false
+end
+
+function getSlots(self)
     return slots
 end
 
@@ -196,7 +209,7 @@ function event(self, e)
                 item_info = true
                 help_item:setName(tostring(item_stack:getUserdata().name or item_stack:getItem():getName()))
                 local stat = item_stack:getStats()
-                help_item:setString("Rarity : "..string.rep(" ", 10 - #(stat.rarity or "Unknown"))..(stat.rarity or "Unknown").."\nDammage : "..string.rep(" ", 8 - #tostring(stat.dammage or 0)).."+"..tostring(stat.dammage or 0).."\nDefense : "..string.rep(" ", 8 - #tostring(stat.defense or 0)).."+"..tostring(stat.defense or 0).."\nSpeed : "..string.rep(" ", 10 - #tostring(stat.speed or 0)).."+"..tostring(stat.speed or 0).."\nParade : "..string.rep(" ", 9 - #tostring(stat.parade or 0)).."+"..tostring(stat.parade or 0).."\nHealth : "..string.rep(" ", 9 - #tostring(stat.max_health or 0)).."+"..tostring(stat.max_health or 0).."\nMana : "..string.rep(" ", 11 - #tostring(stat.max_mana or 0)).."+"..tostring(stat.max_mana or 0).."\nStamina : "..string.rep(" ", 8 - #tostring(stat.max_stamina or 0)).."+"..tostring(stat.max_stamina or 0).."\n")
+                help_item:setString("Rarity : "..string.rep(" ", 10 - #(stat.rarity or "Unknown"))..(stat.rarity or "Unknown").."\nDamage : "..string.rep(" ", 9 - #tostring(stat.damage or 0)).."+"..tostring(stat.damage or 0).."\nDefense : "..string.rep(" ", 8 - #tostring(stat.defense or 0)).."+"..tostring(stat.defense or 0).."\nSpeed : "..string.rep(" ", 10 - #tostring(stat.speed or 0)).."+"..tostring(stat.speed or 0).."\nParade : "..string.rep(" ", 9 - #tostring(stat.parade or 0)).."+"..tostring(stat.parade or 0).."\nHealth : "..string.rep(" ", 9 - #tostring(stat.max_health or 0)).."+"..tostring(stat.max_health or 0).."\nMana : "..string.rep(" ", 11 - #tostring(stat.max_mana or 0)).."+"..tostring(stat.max_mana or 0).."\nStamina : "..string.rep(" ", 8 - #tostring(stat.max_stamina or 0)).."+"..tostring(stat.max_stamina or 0).."\n\n"..tostring(item_stack:getUserdata().desc or ""))
                 break
             end
         end

@@ -26,6 +26,8 @@ Class "EntitySlashWeapon" extends "Entity" [{
         box.setRotation(this.angle)
         box.setScale(1.25 * size, 2 * size)
         super.addHitbox(box)
+        assets["slash_sound"]:setVolume(math.floor((size - 0.5 / 1.5) * 75) + 25)
+        assets["slash_sound"]:play()
     end
 
     function setDir(x, y)

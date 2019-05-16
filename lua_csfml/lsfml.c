@@ -24,6 +24,7 @@ static const luaL_Reg lsfmllib[] = {
     {"window_drawText", win_draw_text},
     {"window_setFramerateLimit", win_set_framerate_limit},
     {"window_setMouseCursorGrabbed", win_set_mouse_cursor_grabbed},
+    {"window_display", win_display},
 
     {"sprite_create", sprite_create},
     {"sprite_destroy", sprite_destroy},

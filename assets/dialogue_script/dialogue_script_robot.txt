@@ -2,21 +2,21 @@
 /**DEBUT TRANSMISSION**\
 ************************
 BoBzzz..jour, je suis bZZ
-Voici les information
+Voici les informations
 pour BzzZz bien jouer
 Vous pouvez vous deplacer
-dans la map malgres les 
+dans la map malgre les 
 differents ennemis
 Certaines salles
 contiennent des BOSS
 alors soyez pret
 Vous avez acces a votre
 inventaire, votre status
-et des info sur les items
+et des infos sur les items
 Vous avez aussi acces a
 votre propre menu de
 sort drag and drop
-Lorsque vous parler
+Lorsque vous parlez
 a quelqu'un, vous
 pouvez instantanement
 sortir du dialogue en
@@ -33,9 +33,9 @@ pour ne rater aucune
 salle
 Votre touche d'action
 ([F] de base) vous 
-seras toujours utile
+sera toujours utile
 N'hesitez pas a faire un
-tour dans les option pour
+tour dans les options pour
 voir les possibilitees !
 ***********************
 /***FIN TRANSMISSION***\

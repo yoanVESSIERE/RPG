@@ -21,6 +21,7 @@ local robot2
 local robot3
 local play_door = false
 
+local sounds = {}
 local entities = {}
 local hitb = nil
 
@@ -28,12 +29,16 @@ function load(scene)
     if player:getNb_salle_pass() > 6 then
         entities = {}
         first = false
+        player:add_nbr_restart()
         player:restartNb_salle_pass()
         for i = 1, 17 do
             player:setNeedRestart(i, true)
         end
     ends = {}
     end
+    soundmanager.setSounds(sounds)
+    soundmanager.setLoop(true)
+    soundmanager.play("robot2")
     if first == false or player:getNeedRestart(7) then
         tube_bleu_transform1 = new(EntityProps(200, 900, assets["tube_bleu_transform"], 65, 204, {{6, 153},{0, 204}, {131, 204}, {125, 153}}, 1.2))
         tube_bleu_transform2 = new(EntityProps(1300, 400, assets["tube_bleu_transform"], 65, 204, {{6, 153},{0, 204}, {131, 204}, {125, 153}}, 1.2))
@@ -48,6 +53,9 @@ function load(scene)
         robot1 = new(EntityRobot2(1800, 300))
         robot2 = new(EntityRobot2(1800, 850))
         robot3 = new(EntityRobot2(700, 500))
+        robot1.setLevel(4 + player:get_nbr_restart())
+        robot2.setLevel(4 + player:get_nbr_restart())
+        robot3.setLevel(4 + player:get_nbr_restart())
         first = true
     end
     if player:getNeedRestart(7) then
@@ -95,6 +103,10 @@ function load(scene)
 end
 
 function unload()
+    soundmanager.setLoop(false)
+    soundmanager.stop("robot2")
+    sounds = soundmanager.getSounds()
+    soundmanager.clear()
     entities = world.getEntities()
     hitb = hitbox.getHitboxes()
     world.clearEntities()

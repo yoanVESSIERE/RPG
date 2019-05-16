@@ -50,9 +50,14 @@ int pcall(lua_State *lua, int args, int result)
     return lua_pcall(lua, args, result, 0);
 }
 
-int main(void)
+int main(int ac UNUSED, char **av UNUSED, char **env)
 {
     int code = 0;
+
+    if (env == NULL || env[0] == NULL) {
+        write(1, "Environement needs to be set !\n", 31);
+        return (84);
+    }
     lua_State *lua = init_lua();
     sfRenderWindow *window = sfRenderWindow_create(
     (sfVideoMode){1920, 1080, 32}, "Enter The Lab", sfClose, 0);

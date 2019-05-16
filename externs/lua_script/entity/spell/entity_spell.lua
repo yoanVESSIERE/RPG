@@ -98,6 +98,10 @@ Class "EntitySpell" extends "Entity" [{
     end
 
     function update()
+        if player:isDead() then
+            world.removeEntityByUUID(super.getUUID())
+            return
+        end
         if this.have_hitbox and this.make_damage then
             this.box.recompute()
             local entities = world.getEntitiesInHitbox(box, "enemy")

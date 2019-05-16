@@ -5,12 +5,15 @@
 local background = lsfml.sprite.create()
 background:setTexture(assets["labo_pop"], false)
 
+local door_box
+
 local first = false
 local door
 local canPass = false
 local stopwatch = stopwatch.create()
 local play_door = false
 local soucoupe
+
 
 local entities = {}
 local hitb = nil
@@ -19,6 +22,7 @@ function load(scene)
     if player:getNb_salle_pass() > 6 then
         entities = {}
         first = false
+        player:add_nbr_restart()
         player:restartNb_salle_pass()
         for i = 1, 17 do
             player:setNeedRestart(i, true)
@@ -31,13 +35,12 @@ function load(scene)
         door:scale(0.38, 0.38)
         first = true
     end
-    bosshealth:setEntity(soucoupe)
     if player:getNeedRestart(12) then
         entities = {}
         player:setNeedRestart(12, false)
     end
     if scene == "scene11_angle_droit" then
-        player.setPosition(1050, 210)
+        player.setPosition(1050, 240)
     end
     world.setEntities(entities)
     if #entities == 0 then
@@ -45,6 +48,7 @@ function load(scene)
         world.spawnEntity(player)
         world.spawnEntity(robot1)
     end
+    bosshealth:setEntity(soucoupe)
     if (hitb == nil) then
         HitBoxWall(0, 0, {{0, 0}, {0, 220}, {960, 220}, {960, 190}, {1115, 190}, {1115, 220}, {1920, 220}, {1920, 0}})
         HitBoxWall(0, 0, {{0, 1030}, {1890, 1030}})
@@ -53,9 +57,17 @@ function load(scene)
         hitb = hitbox.getHitboxes()
     end
     hitbox.setHitboxes(hitb)
+    local ents = world.getEntities()
+    for i=1, #ents do
+        if type(ents[i]) == "EntitySoucoupe" then
+            bosshealth:setEntity(ents[i])
+            break
+        end
+    end
 end
 
 function unload()
+    soucoupe.setHealth(soucoupe.getMaximumHealth())
     entities = world.getEntities()
     hitb = hitbox.getHitboxes()
     world.clearEntities()
@@ -68,6 +80,12 @@ function HitBoxWall(x_or, y_or, pts)
     box.setPoints(pts)
     box.setPosition(x_or, y_or)
     hitbox.add(box)
+    if door_box == nil then
+        door_box = new(Hitbox("hard", {takeDamage=false, doDamage=false}))
+        door_box.setPoints({{0, 215}, {1920, 215}})
+        door_box.setPosition(0, 0)
+        hitbox.add(door_box)
+    end
 end
 
 function draw()
@@ -93,6 +111,7 @@ function update()
         if not play_door then
             assets["door_sound"]:play()
             play_door = true
+            door_box.setType("soft")
         end
         if y < 200 then
             player:plusNb_salle_pass()

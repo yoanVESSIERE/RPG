@@ -192,6 +192,13 @@ function lsfml.window.getSize(window)
     return olsfml.window_getSize(meta.__ptr)
 end
 
+function lsfml.window.display(window)
+    check(window, "window", 1)
+
+    local meta = getmetatable(window)
+    olsfml.window_display(meta.__ptr)
+end
+
 -- =======================
 -- =       SHADER        =
 -- =======================

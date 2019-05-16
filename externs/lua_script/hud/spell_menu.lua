@@ -25,7 +25,7 @@ local spell_info = {
     bouleelecSpell = {"Energy Ball", "Lance un projectile\ndans la\ndirection que\nvous regardez\n\nL'energie n'est\nqu'une forme\nirreelle prenant\ndifferentes formes"},
     dashSpell = {"Dash", "Vous projette\nvers la direction\ndans laquelle\nvous\nregardez\n\nComment ca on\na plagier\nl'image de League\nOf Leagend ?"},
     repulsionSpell = {"Repulsion", "Tout les ennemis\net projectiles\nautour de vous sont\nexpulsé\n\nUne onde de choc\ndigne des explosions\nnucleaire !"},
-    shieldSpell = {"Shield", "Vous protege\nen continue (tant\nque tu appuie\ndessus)\n\nQui aurais crus\nqu'un bouclier\npouvait prendre\nune forme\noctogonale ?"},
+    shieldSpell = {"Shield", "Vous protege\nen continue (tant\nque vous appuiez\ndessus)\n\nQui aurais crus\nqu'un bouclier\npouvait prendre\nune forme\noctogonale ?"},
     tempSpell = {"Time", "Arrete le\ntemps pendant\nquelque seconde\n\nTo be continued ->\n (Ceci est une\nreference)"},
 
 }

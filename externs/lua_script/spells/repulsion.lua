@@ -11,7 +11,7 @@ function cooldownStartAtEnd()
 end
 
 function getCost()
-    return 3
+    return 9
 end
 
 function cooldownStartAtEnd()

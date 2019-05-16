@@ -67,3 +67,21 @@ int win_set_mouse_cursor_grabbed(lua_State *L)
     }
     return (0);
 }
+
+int win_display(lua_State *L)
+{
+    sfRenderWindow *window = 0;
+
+    if (lua_gettop(L) < 1) {
+        luaL_error(L, "Expected (Window)");
+        return (0);
+    }
+    if (lua_isuserdata(L, 1)) {
+        window = USERDATA_POINTER(L, 1, sfRenderWindow);
+        sfRenderWindow_display(window);
+    } else {
+        luaL_error(L, "Expected (Window)");
+        return (0);
+    }
+    return (0);
+}

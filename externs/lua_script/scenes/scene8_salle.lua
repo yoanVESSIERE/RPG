@@ -5,6 +5,8 @@
 local background = lsfml.sprite.create()
 background:setTexture(assets["labo_pop"], false)
 
+local door_box
+
 local first = false
 local tube_bleu_casser 
 local tube_bleu_transform1 
@@ -29,6 +31,7 @@ local canPass = false
 local stopwatch = stopwatch.create()
 local play_door = false
 
+
 local entities = {}
 local hitb = nil
 
@@ -36,6 +39,7 @@ function load(scene)
     if player:getNb_salle_pass() > 6 then
         entities = {}
         first = false
+        player:add_nbr_restart()
         player:restartNb_salle_pass()
         for i = 1, 17 do
             player:setNeedRestart(i, true)
@@ -60,6 +64,13 @@ function load(scene)
         robot5 = new(EntityTurret(879, 654))
         robot6 = new(EntityTurret(1198, 654))
         robot7 = new(EntityTurret(1035, 700))
+        robot1.setLevel(3 + player:get_nbr_restart())
+        robot2.setLevel(3 + player:get_nbr_restart())
+        robot3.setLevel(3 + player:get_nbr_restart())
+        robot4.setLevel(3 + player:get_nbr_restart())
+        robot5.setLevel(3 + player:get_nbr_restart())
+        robot6.setLevel(3 + player:get_nbr_restart())
+        robot7.setLevel(3 + player:get_nbr_restart())
         door = animation.create(assets["door"], {0, 0 , 400, 351})
         door:setPosition(965, 80)
         door:scale(0.38, 0.38)
@@ -70,7 +81,7 @@ function load(scene)
         player:setNeedRestart(8, false)
     end
     if scene == "scene7_angle_droit" then
-        player.setPosition(1050, 210)
+        player.setPosition(1050, 240)
     end
     world.setEntities(entities)
     if #entities == 0 then
@@ -102,6 +113,12 @@ function load(scene)
         hitb = hitbox.getHitboxes()
     end
     hitbox.setHitboxes(hitb)
+    if door_box == nil then
+        door_box = new(Hitbox("hard", {takeDamage=false, doDamage=false}))
+        door_box.setPoints({{0, 215}, {1920, 215}})
+        door_box.setPosition(0, 0)
+        hitbox.add(door_box)
+    end
 end
 
 function unload()
@@ -141,6 +158,7 @@ function update()
         if not play_door then
             assets["door_sound"]:play()
             play_door = true
+            door_box.setType("soft")
         end
         if y < 200 then
             player:plusNb_salle_pass()

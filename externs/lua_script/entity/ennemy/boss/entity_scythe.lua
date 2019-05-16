@@ -29,7 +29,7 @@ Class "EntityScytheBoss" extends "EntityLiving" [{
         this.revert = false
         this.dir = 0
         this.speed = 2
-        this.max_distance = 300
+        this.max_distance = 250
         this.func = 1
         this.cooldown = false
         this.clock = stopwatch.create()
@@ -38,6 +38,9 @@ Class "EntityScytheBoss" extends "EntityLiving" [{
         super.setType("ennemy")
     end
 
+    function setPhase(num)
+        this.phase = num
+    end
 
     function hit(damage, source)
         if super.isAlive() and this.attack ~= "asmat_entity" then
@@ -61,8 +64,10 @@ Class "EntityScytheBoss" extends "EntityLiving" [{
                 for i=1, math.random(1, 4) do
                     world.spawnEntity(new(EntityItem(itemstack.generateEquipment()))).setPosition(super.getPosition())
                 end
-                world.spawnEntity(new(EntityItem(itemstack.create(items["scythe"], 1)))).setPosition(super.getPosition())
-                world.spawnEntity(new(EntityItem(itemstack.create(items["parchemin_5"], 1)))).setPosition(super.getPosition())
+                local scythe_item = itemstack.create(items["scythe"], 1)
+                scythe_item:getStats().rarity = "God"
+                scythe_item:getStats().damage = 50
+                world.spawnEntity(new(EntityItem(scythe_item))).setPosition(super.getPosition())
                 world.removeEntityByUUID(this.getUUID())
             end
         end
@@ -284,6 +289,7 @@ Class "EntityScytheBoss" extends "EntityLiving" [{
                     local rng = math.random(1, 100)
                     if this.attack ~= "idle" and rng < chance then
                         this.attack = "asmat_entity"
+                        assets["scythe_ulti"]:play()
                     end
                 end
             end

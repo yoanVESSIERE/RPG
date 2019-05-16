@@ -42,6 +42,7 @@ local robot2
 local robot3
 local robot4
 
+local sounds = {}
 local entities = {}
 local hitb = nil
 
@@ -49,11 +50,15 @@ function load(scene)
     if player:getNb_salle_pass() > 6 then
         entities = {}
         first = false
+        player:add_nbr_restart()
         player:restartNb_salle_pass()
         for i = 1, 17 do
             player:setNeedRestart(i, true)
         end
     end
+    soundmanager.setSounds(sounds)
+    soundmanager.setLoop(true)
+    soundmanager.play("robot2")
     if first == false or player:getNeedRestart(15) then
         status1 = new(EntityProps(1699, 354, assets["status"], 50, 150, {{0, 127}, {13, 147}, {23, 174}, {100, 174}, {62, 130}}, 1))
         status2 = new(EntityProps(1535, 792, assets["status"], 50, 150, {{0, 127}, {13, 147}, {23, 174}, {100, 174}, {62, 130}}, 1))
@@ -78,14 +83,20 @@ function load(scene)
         pot5_2 = new(EntityProps(1528, 961, assets["pot5"], 17, 84, {{0, 74}, {0, 84}, {34, 84}, {31, 74}}, 1))
         pot5_3 = new(EntityProps(188, 334, assets["pot5"], 17, 84, {{0, 74}, {0, 84}, {34, 84}, {31, 74}}, 1))
         pot5_4 = new(EntityProps(1750, 927, assets["pot5"], 17, 84, {{0, 74}, {0, 84}, {34, 84}, {31, 74}}, 1))
-        if one then
+        if canP3 then
             parchemin3 = new(EntityProps(600, 30, assets["parchemin_3"], 17, 0, {}, 1))
+        end
+        if canP4 then
             parchemin4 = new(EntityProps(200, 600, assets["parchemin_4"], 17, 0, {}, 1))
         end
         robot1 = new(EntityRobot2(300, 400))
         robot2 = new(EntityRobot2(200, 500))
         robot3 = new(EntityRobot2(300, 600))
         robot4 = new(EntityRobot2(400, 500))
+        robot1.setLevel(5 + player:get_nbr_restart())
+        robot2.setLevel(5 + player:get_nbr_restart())
+        robot3.setLevel(5 + player:get_nbr_restart())
+        robot4.setLevel(5 + player:get_nbr_restart())
         first = true
     end
     if player:getNeedRestart(15) then
@@ -121,10 +132,11 @@ function load(scene)
         world.spawnEntity(pot5_2)
         world.spawnEntity(pot5_3)
         world.spawnEntity(pot5_4)
-        if one then
+        if canP3 then
             world.spawnEntity(parchemin3)
+        end
+        if canP4 then
             world.spawnEntity(parchemin4)
-            one = false
         end
         world.spawnEntity(robot1)
         world.spawnEntity(robot2)
@@ -142,6 +154,10 @@ function load(scene)
 end
 
 function unload()
+    soundmanager.setLoop(false)
+    soundmanager.stop("robot2")
+    sounds = soundmanager.getSounds()
+    soundmanager.clear()
     entities = world.getEntities()
     hitb = hitbox.getHitboxes()
     world.clearEntities()

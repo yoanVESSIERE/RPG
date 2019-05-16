@@ -11,14 +11,14 @@ function cooldownStartAtEnd()
 end
 
 function getCost()
-    return 25
+    return 50
 end
 
 function cast(self)
     world.spawnEntity(animationSpell["healSpell"])
     player.removeMana(getCost())
     assets["heal"]:play()
-    player.heal(40)
+    player.heal(player.getMaximumHealth() * 0.33)
     animationSpell["healSpell"].restart()
 end
 

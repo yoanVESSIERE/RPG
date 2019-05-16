@@ -46,7 +46,6 @@ Class "EntityPlayer" extends "EntityLiving" [{
         this.status_horizontal = "none"
         this.inventory = hud.createFromFile("hud/inventory_hud.lua")
         this.is_sprinting = false
-        this.is_damageable = true
         local box = new(Hitbox("player"))
         box.setPoints({{0, 0}, {220, 0}, {220, 220}, {0, 220}})
         box.setOrigin(220 / 2, 220)
@@ -54,8 +53,18 @@ Class "EntityPlayer" extends "EntityLiving" [{
         box.setPosition(super.getPosition())
         super.addHitbox(box)
         this.isInQuest = false
+        this.charging = false
         this.nb_salle_pass = 0
         this.needRestart = {false}
+        this.nbr_restart = 0
+    end
+
+    function add_nbr_restart(self)
+        this.nbr_restart = this.nbr_restart + 1
+    end
+
+    function get_nbr_restart(self)
+        return this.nbr_restart
     end
 
     function setNeedRestart(self, i, need)
@@ -75,6 +84,7 @@ Class "EntityPlayer" extends "EntityLiving" [{
     end
 
     function restartNb_salle_pass(self)
+        assets["alarm"]:play()
         this.nb_salle_pass = 0
     end
 
@@ -86,9 +96,14 @@ Class "EntityPlayer" extends "EntityLiving" [{
         this.isInQuest = quest
     end
 
-    function damageable(bool)
-        this.is_damageable = bool
+    function isInSpell()
+        if this.status == "spell" then
+            return true
+        else
+            return false
+        end
     end
+
     function activateSpell()
         if this.status == "spell" then
             return
@@ -230,8 +245,9 @@ Class "EntityPlayer" extends "EntityLiving" [{
     ---------------------------------
 
     function hit(damage, source)
-        if this.is_damageable then
-            local defense = this.getDefense()
+        local defense = this.getDefense()
+        local rng = math.random( 0, 100 ) / 100
+        if rng > this.getParade() - 1 then
             super.hit(damage * (1 - (defense - 1)), source)
             if super.isDead() then
                 if this.scythe_attack == "scythe_launch" and this.my_scythe then
@@ -292,6 +308,8 @@ Class "EntityPlayer" extends "EntityLiving" [{
             super.respawn()
             setScene("test_player")
             this.setPosition(550, 680)
+            this.mana = this.getMaximumMana()
+            this.stamina = this.getMaximumStamina()
             this.addExperience(-math.floor(this.getExperience()) / 2)
             this.stamina = this.max_stamina
             this.pos_rect = {12, 30000, 2640, 2500, 220, 500}
@@ -378,6 +396,8 @@ Class "EntityPlayer" extends "EntityLiving" [{
                         this.scythe:setRotation(45)
                         this.scythe:setScale(-0.5 * this.size_slash, 0.5 * this.size_slash)
                     end
+                    this.charging = false
+                    assets["spell_charging"]:stop()
                 elseif event[4] == mouse.RIGHT then
 
                 end
@@ -470,7 +490,7 @@ Class "EntityPlayer" extends "EntityLiving" [{
         if this.status == "respawn" then
             return
         end
-        local speed = this.getStats().getSpeed() * DeltaTime
+        local speed = this.getSpeed() * DeltaTime
         if this.is_sprinting == true and this.status ~= "idle" then
             this.stamina = this.stamina - 1 * DeltaTime
             speed = speed * 2
@@ -478,7 +498,7 @@ Class "EntityPlayer" extends "EntityLiving" [{
             this.stamina = this.stamina + 1 * DeltaTime
         end
         if this.getMaximumMana() > this.mana and this.status ~= "spell" then
-            this.mana = this.mana + 0.1 * DeltaTime
+            this.mana = this.mana + 0.3 * DeltaTime
         end
         if super.isDead() then
             if (this.status ~= "death") then
@@ -646,6 +666,10 @@ Class "EntityPlayer" extends "EntityLiving" [{
                 else
                     this.scythe:setRotation(45)
                     this.scythe:setScale(-0.5 * size, 0.5 * size)
+                end
+                if size > 0.5 and not this.charging then
+                    assets["spell_charging"]:play()
+                    this.charging = true
                 end
             end
             if this.scythe_attack ~= "none" and this.scythe_attack ~= "scythe_launch" then

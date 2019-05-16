@@ -21,6 +21,7 @@ local robot2
 local robot3
 local play_door = false
 
+local sounds = {}
 local entities = {}
 local hitb = nil
 
@@ -28,11 +29,15 @@ function load(scene)
     if player:getNb_salle_pass() > 6 then
         entities = {}
         first = false
+        player:add_nbr_restart()
         player:restartNb_salle_pass()
         for i = 1, 17 do
             player:setNeedRestart(i, true)
         end
     end
+    soundmanager.setSounds(sounds)
+    soundmanager.setLoop(true)
+    soundmanager.play("robot1")
     if first == false or player:getNeedRestart(5) then
         torch1 = new(EntityProps(100, 850, assets["torch"], 27, 111, {{0, 95},{0, 111}, {55, 111}, {55, 95}}, 1))
         torch2 = new(EntityProps(100, 450, assets["torch_empty"], 27, 84, {{0, 95},{0, 84}, {55, 84}, {55, 95}}, 1))
@@ -47,6 +52,9 @@ function load(scene)
         robot1 = new(EntityRobot1(800, 450))
         robot2 = new(EntityRobot1(500, 750))
         robot3 = new(EntityRobot1(1200, 510))
+        robot1.setLevel(4 + player:get_nbr_restart())
+        robot2.setLevel(2 + player:get_nbr_restart())
+        robot3.setLevel(2 + player:get_nbr_restart())
         first = true
     end
     if player:getNeedRestart(5) then
@@ -100,6 +108,10 @@ function load(scene)
 end
 
 function unload()
+    soundmanager.setLoop(false)
+    soundmanager.stop("robot1")
+    sounds = soundmanager.getSounds()
+    soundmanager.clear()
     entities = world.getEntities()
     hitb = hitbox.getHitboxes()
     world.clearEntities()

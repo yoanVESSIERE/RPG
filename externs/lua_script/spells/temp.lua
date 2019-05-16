@@ -11,7 +11,7 @@ function cooldownStartAtEnd()
 end
 
 function getCost()
-    return 50
+    return 100
 end
 
 function cast(self)

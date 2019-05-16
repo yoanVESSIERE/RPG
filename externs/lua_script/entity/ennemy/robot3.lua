@@ -13,8 +13,8 @@ Class "EntityRobot3" extends "EntityLiving" [{
         super(x, y)
         super.setHealthBarVisible(true)
         super.setHealthBarOffset(0, -875 * 0.25)
-        super.setMaximumHealth(250)
-        super.setHealth(250)
+        super.setMaximumHealth(200)
+        super.setHealth(200)
         this.sprite = animation.create(assets["robot3"], {0, 0, 73, 63})
         this.sprite:setPosition(x, y)
         this.sprite:setOrigin(32.5, 64)
@@ -27,11 +27,25 @@ Class "EntityRobot3" extends "EntityLiving" [{
         this.max_distance = 110
         this.last_animation = false
         this.is_attack = false
+        super.setType("ennemy")
         initHitboxes()
     end
 
     function getExperience()
-        return 101
+        return 100 * this.getLevel()
+    end
+
+    function hit(damage, source)
+        super.hit(damage, source)
+        if this.isDead() then
+            if math.random(0, 100) < 25 then
+                for i=1, math.random(1, 2) do
+                    world.spawnEntity(new(EntityItem(itemstack.generateEquipment()))).setPosition(super.getPosition())
+                end
+            end
+            world.spawnEntity(new(EntityItem(itemstack.create(items.metal_scrap, 5)))).setPosition(super.getPosition())
+            world.removeEntityByUUID(this.getUUID())
+        end
     end
 
     function setPosition(x, y)
@@ -63,15 +77,6 @@ Class "EntityRobot3" extends "EntityLiving" [{
             end
             this.sprite:draw()
             super.drawHitbox()
-
-        else
-            if math.random(0, 100) < 25 then
-                for i=1, math.random(1, 2) do
-                    world.spawnEntity(new(EntityItem(itemstack.generateEquipment()))).setPosition(super.getPosition())
-                end
-            end
-            world.spawnEntity(new(EntityItem(itemstack.create(items.metal_scrap, 5)))).setPosition(super.getPosition())
-            world.removeEntityByUUID(this.getUUID())
         end
         super.drawHealth()
     end

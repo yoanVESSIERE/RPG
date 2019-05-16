@@ -12,9 +12,9 @@ Class "EntityMageBoss" extends "EntityLiving" [{
         super(x, y)
         initHitboxes()
         if clone then
-            super.setMaximumHealth(15)
-            super.setHealth(15)
-            this.mx = 15
+            super.setMaximumHealth(1)
+            super.setHealth(1)
+            this.mx = 1
         else
             super.setMaximumHealth(10000)
             super.setHealth(10000)
@@ -34,6 +34,7 @@ Class "EntityMageBoss" extends "EntityLiving" [{
         this.phase = 1
         this.action = {act = "none", atk = "none"}
         this.rayon = {}
+        this.attack_timer = stopwatch.create()
         super.setType("ennemy")
     end
 
@@ -55,6 +56,9 @@ Class "EntityMageBoss" extends "EntityLiving" [{
         end
     end
 
+    function setPhase(num)
+        this.phase = num
+    end
 
     function hit(damage, source)
         if super.isAlive() then
@@ -83,20 +87,19 @@ Class "EntityMageBoss" extends "EntityLiving" [{
                 end
             end
             if super.isDead() then
-                -- for i=1, math.random(1, 4) do
-                --     world.spawnEntity(new(EntityItem(itemstack.generateEquipment()))).setPosition(super.getPosition())
-                -- end
-                -- world.spawnEntity(new(EntityItem(itemstack.create(items["scythe"], 1)))).setPosition(super.getPosition())
+                for i = 1, #this.rayon do
+                    world.removeEntityByUUID(this.rayon[i]:getUUID())
+                end
                 world.removeEntityByUUID(this.getUUID())
             end
         end
     end
 
-    function teleport(x, y)
+    function teleport(x, y, force)
         check(x, "number", 1)
         check(y, "number", 2)
 
-        if this.action.act == "none" then
+        if this.action.act == "none" or force then
             this.action.act = "teleport"
             this.action.tp_x = x
             this.action.tp_y = y
@@ -137,7 +140,7 @@ Class "EntityMageBoss" extends "EntityLiving" [{
     end
 
     function blackHole()
-        if not this.clone then
+        if this.action.act == "none" and not this.clone then
             this.action.act = "teleport"
             this.action.tp_x = 1920 / 2
             this.action.tp_y = 1080 / 2
@@ -162,10 +165,17 @@ Class "EntityMageBoss" extends "EntityLiving" [{
             if this.scale <= 0 and not this.action.tp_revert then
                 this.setPosition(this.action.tp_x, this.action.tp_y)
                 this.action.tp_revert = true
+                assets["mage_teleport"]:play()
             elseif this.action.tp_revert and this.scale >= 1 then
                 this.action.act = "none"
                 this.action.tp_revert = false
             end
+        end
+    end
+
+    function randomTeleport()
+        if this.action.act == "none" then
+            teleport(math.random(200, 1800), math.random(200, 800))
         end
     end
 
@@ -189,7 +199,7 @@ Class "EntityMageBoss" extends "EntityLiving" [{
         if this.action.blackhole and not this.clone then
             if this.action.act == "none" then
                 this.action.act = "blackhole"
-                this.action.blackhole_entity = world.spawnEntity(new(EntityBlackHole(0.5* DeltaTime, math.max(5 * this.phase, 15), final)))
+                this.action.blackhole_entity = world.spawnEntity(new(EntityBlackHole(0.25 * DeltaTime, math.max(2 * this.phase, 15), final)))
             end
             if this.action.act == "blackhole" then
                 if this.action.blackhole_entity.asExpired() then
@@ -220,19 +230,25 @@ Class "EntityMageBoss" extends "EntityLiving" [{
     end
 
     function laserForm()
-        if this.action.act == "none" then
+        if this.action.act == "none" and not this.clone then
             this.action.act = "laser_form"
         end
     end
 
     function doLaserForm()
-        if this.action.act == "laser_form" then
+        if this.action.act == "laser_form" and not this.clone then
             for i=1, #mage_points[this.form + 1] do
                 local data = mage_points[this.form + 1][i]
                 world.spawnEntity(new(EntityLaserBeam(data[1], data[2], vector.new(data[3], data[4]), 1 * DeltaTime * this.phase, 2, data[5], data[6], data[7], final)))
             end
             this.form = (this.form + 1) % (math.min(#mage_points, this.phase))
-            this.action.act = "none"
+            this.action.act = "laser_form_wait"
+            this.attack_timer:restart()
+        end
+        if this.action.act == "laser_form_wait" then
+            if this.attack_timer:getEllapsedTime() > 5000000 then
+                this.action.act = "none"
+            end
         end
     end
 
@@ -242,18 +258,25 @@ Class "EntityMageBoss" extends "EntityLiving" [{
             for i=1, this.phase * 2 do
                 world.spawnEntity(new(EntityVortexMissile(math.random(1, 100) - 50 + nx, math.random(1, 100) - 50 + ny, 5 + this.phase * 2, 15 - this.phase, final)))
             end
-            this.action.act = "none"
+            this.action.act = "missile_wait"
+        end
+        if this.action.act == "missile_wait" then
+            if this.attack_timer:getEllapsedTime() > 2000000 then
+                this.action.act = "none"
+            end
         end
     end
 
     function tpAttack()
-        this.action.atk = "tpAttack"
-        this.tp_attack:restart()
+        if this.action.act == "none" then
+            this.action.atk = "tpAttack"
+            this.tp_attack:restart()
+        end
     end
 
     local function doLaser()
-        if this.action.act == "laser" then
-            if this.rayon_attack:getEllapsedTime() > 7000000 then
+        if this.action.act == "laser" and not this.clone then
+            if this.rayon_attack:getEllapsedTime() > 9000000 then
                 this.action.act = "none"
                 this.rayon_attack:restart()
                 for i = 1, #this.rayon do
@@ -264,15 +287,17 @@ Class "EntityMageBoss" extends "EntityLiving" [{
     end
 
     function laser()
-        this.action.act = "laser"
-        this.rayon_attack:restart()
-        local x, y = super.getPosition()
-        for i = 1, this.phase do
-            this.rayon[i] = world.spawnEntity(new(EntityRayon(x, y - 90 , (360/this.phase) * i, 1 * DeltaTime * this.phase, final)))
+        if this.action.act == "none" and not this.clone then
+            this.action.act = "laser"
+            this.rayon_attack:restart()
+            local x, y = super.getPosition()
+            for i = 1, this.phase do
+                this.rayon[i] = world.spawnEntity(new(EntityRayon(x, y - 90 , (360/this.phase) * i, 1 * DeltaTime * this.phase, final)))
+            end
         end
     end
 
-    local funct_atk = {this.blackHole, this.tpAttack, this.laser, this.KageBunshin, this.missile, this.laserForm}
+    local funct_atk = {this.blackHole, this.tpAttack, this.laser, this.KageBunshin, this.missile, this.laserForm, this.randomTeleport}
     function update()
         if this.isAlive() then
             super.update()

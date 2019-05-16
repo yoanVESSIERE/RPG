@@ -27,6 +27,17 @@ Class "EntityLiving" extends "Entity" [{
         this.health_bar:setOrigin(520, 15)
         this.health_bar:setScale(0.15, 0.5)
         this.show_health = false
+        this.vulnerable = true
+    end
+
+    function setVulnerable(bool)
+        check(bool, "boolean", 1)
+
+        this.vulnerable = bool
+    end
+
+    function isVulnerable()
+        return this.vulnerable
     end
 
     function getExperience()
@@ -40,7 +51,21 @@ Class "EntityLiving" extends "Entity" [{
         while this.experience > this.next_exp_stage do
             this.lvl = this.lvl + 1
             this.experience = this.experience - this.next_exp_stage
-            this.next_exp_stage = this.next_exp_stage * 1.01 ^ this.lvl
+            this.next_exp_stage = this.next_exp_stage * 1.1 ^ this.lvl
+            if final and final.onLevelUp then
+                final.onLevelUp(this.lvl)
+            end
+        end
+    end
+
+    function setExperience(amount)
+        check(amount, "number", 1)
+
+        this.experience = math.floor(amount)
+        while this.experience > this.next_exp_stage do
+            this.lvl = this.lvl + 1
+            this.experience = this.experience - this.next_exp_stage
+            this.next_exp_stage = this.next_exp_stage * 1.1 ^ this.lvl
             if final and final.onLevelUp then
                 final.onLevelUp(this.lvl)
             end
@@ -166,7 +191,9 @@ Class "EntityLiving" extends "Entity" [{
     end
 
     function kill()
-        this.setHealth(-2147483647)
+        if this.isVulnerable() then
+            this.setHealth(-2147483647)
+        end
     end
 
     function respawn()
@@ -181,7 +208,7 @@ Class "EntityLiving" extends "Entity" [{
             error("Argument #2, Source cannot be nil", 2)
         end
         if (damage >= 0) then
-            if this.isAlive() then
+            if this.isAlive() and this.isVulnerable() then
                 this.setHealth(this.health - damage)
                 if this.isDead() then
                     if class.isInstanceOf(source, "EntityLiving") then

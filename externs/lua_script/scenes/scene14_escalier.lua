@@ -5,6 +5,8 @@
 local background = lsfml.sprite.create()
 background:setTexture(assets["labo_escalier"], false)
 
+local door_box
+
 local first = false
 local geant_tapis_gauche
 local grand_tapis_droite
@@ -44,7 +46,6 @@ local canPass = false
 local stopwatch = stopwatch.create()
 local play_door = false
 
-
 local entities = {}
 local hitb = nil
 
@@ -52,6 +53,7 @@ function load(scene)
     if player:getNb_salle_pass() > 6 then
         entities = {}
         first = false
+        player:add_nbr_restart()
         player:restartNb_salle_pass()
         for i = 1, 17 do
             player:setNeedRestart(i, true)
@@ -85,12 +87,18 @@ function load(scene)
         pot5_2 = new(EntityProps(686, 523, assets["pot5"], 17, 84, {{0, 74}, {0, 84}, {34, 84}, {31, 74}}, 1))
         pot5_3 = new(EntityProps(494, 816, assets["pot5"], 17, 84, {{0, 74}, {0, 84}, {34, 84}, {31, 74}}, 1))
         pot5_4 = new(EntityProps(404, 905, assets["pot5"], 17, 84, {{0, 74}, {0, 84}, {34, 84}, {31, 74}}, 1))
-        robot1 = new(EntityTurret(200, 400))
-        robot2 = new(EntityTurret(400, 400))
-        robot3 = new(EntityTurret(600, 400))
+        robot1 = new(EntityTurret(200, 600))
+        robot2 = new(EntityTurret(650, 800))
+        robot3 = new(EntityTurret(600, 300))
         robot4 = new(EntityTurret(800, 400))
         robot5 = new(EntityTurret(1000, 400))
-        robot6 = new(EntityTurret(1200, 400))
+        robot6 = new(EntityTurret(1500, 850))
+        robot1.setLevel(5 + player:get_nbr_restart())
+        robot2.setLevel(5 + player:get_nbr_restart())
+        robot3.setLevel(5 + player:get_nbr_restart())
+        robot4.setLevel(5 + player:get_nbr_restart())
+        robot5.setLevel(5 + player:get_nbr_restart())
+        robot6.setLevel(5 + player:get_nbr_restart())
         door = animation.create(assets["door"], {0, 0 , 400, 351})
             door:setPosition(880, 80)
             door:scale(0.38, 0.38)
@@ -154,6 +162,12 @@ function load(scene)
         hitb = hitbox.getHitboxes()
     end
     hitbox.setHitboxes(hitb)
+    if door_box == nil then
+        door_box = new(Hitbox("hard", {takeDamage=false, doDamage=false}))
+        door_box.setPoints({{0, 215}, {1920, 215}})
+        door_box.setPosition(0, 0)
+        hitbox.add(door_box)
+    end
 end
 
 function unload()
@@ -188,6 +202,7 @@ function update()
     for i=1, #entities do
         if entities[i].getType() == "ennemy" then
             canPass = false
+            door_box.setType("soft")
         end
     end
     if canPass then
