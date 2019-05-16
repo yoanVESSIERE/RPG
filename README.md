@@ -1,5 +1,6 @@
 # RPG
 RPG made in Lua in one month
+You can watch our trailer [here](https://www.youtube.com/watch?v=3a6zXnmh4wI&t)
 
 # Getting Started
 
