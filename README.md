@@ -2,6 +2,8 @@
 RPG made in Lua in one month
 You can watch our trailer [here](https://www.youtube.com/watch?v=3a6zXnmh4wI&t)
 
+Only for Linux (debian, Ubuntu, Xunbuntu...)
+
 # Getting Started
 
 1) Download this repository
