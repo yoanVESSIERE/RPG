@@ -16,6 +16,16 @@ Only for Linux (debian, Ubuntu, Xunbuntu...)
 
 Lua [download](https://www.lua.org/download.html)
 
+Install Lua 5.4.1 from command line:
+```
+curl -R -O http://www.lua.org/ftp/lua-5.4.1.tar.gz
+tar zxf lua-5.4.1.tar.gz
+cd lua-5.4.1
+make all test
+make install
+lua -v
+```
+
 ## Author
 
 * **Yoan VESSIERE**
