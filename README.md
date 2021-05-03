@@ -34,5 +34,5 @@ lua -v
 
 ## Details
 
-This is our first game we've never made and we're proud of it !! 
-This is only a test version, we're still in development and going to recreate it from the beginning so if you have any suggestion, please contact us with this email yoan.vessiere@epitech.eu ;)
+This is our first game we've ever made and we're proud of it !! 
+This is only a test version, please be kind ;)
